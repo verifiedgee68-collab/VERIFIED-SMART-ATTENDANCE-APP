@@ -546,7 +546,11 @@ function renderRoster() {
   const list = document.getElementById('rosterList');
   if (entries.length === 0) { list.innerHTML = '<p class="small">No students on the roster yet.</p>'; return; }
   list.innerHTML = entries.map(([key, name]) => `
-    <div class="roster-row"><span>${escapeHtml(name)}</span><span class="mono" style="color:var(--ink-soft);">${escapeHtml(key)}</span></div>
+    <div class="roster-row">
+      <span>${escapeHtml(name)}</span>
+      <span class="mono" style="color:var(--ink-soft);">${escapeHtml(key)}</span>
+      <button onclick="removeStudent('${key}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 6px;">✕</button>
+    </div>
   `).join('');
 }
 
