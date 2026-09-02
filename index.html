@@ -188,7 +188,7 @@ footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; f
         <div class="timer mono" id="timer">10:00</div>
         <div class="code" id="attendanceCode">------</div>
         <div id="qrBox"></div>
-        <p class="small">Code changes every 30 seconds. Students type it in or scan the QR.</p>
+        <p class="small">Code changes every 60 seconds. Students type it in or scan the QR.</p>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
         <div class="progress-label mono" id="progressLabel">0 / 0 checked in</div>
         <button class="secondary" onclick="rollCall()">Random Spot-Check (5)</button>
@@ -597,7 +597,7 @@ async function startAttendance() {
 
   clearInterval(timerInterval); clearInterval(codeInterval);
   renderQr();
-  codeInterval = setInterval(rotateCode, 30000);
+  codeInterval = setInterval(rotateCode, 60000);
   timerInterval = setInterval(updateTimerDisplay, 1000);
   updateTimerDisplay();
 }
@@ -712,8 +712,13 @@ async function markAttendance() {
     let coords;
     try { coords = await getStudentLocation(); }
     catch (e) { status.textContent = 'Location access is required to check in.'; alert('This class requires location access to mark attendance. Please allow location access and try again.'); return; }
+    if (coords.accuracy > 40) {
+      status.textContent = `Your location signal is too weak (±${Math.round(coords.accuracy)}m). Move near a window or outdoors and try again.`;
+      return;
+    }
     const dist = distanceMeters(coords.latitude, coords.longitude, config.venue.lat, config.venue.lng);
-    if (dist > (config.venueRadius || 150)) {
+    const effectiveDist = dist - coords.accuracy;
+    if (effectiveDist > (config.venueRadius || 150)) {
       status.textContent = `You appear to be too far from class (about ${Math.round(dist)}m away).`;
       return;
     }
