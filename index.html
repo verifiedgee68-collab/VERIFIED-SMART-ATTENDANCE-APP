@@ -20,10 +20,8 @@
   --ink-soft: #9FB4CC;
   --cyan: #5CB8E8;
   --amber: #E8A33D;
-  --amber-dark: #C1832A;
   --green: #4FBF8B;
   --red: #E0654A;
-  --paper: #F4F7FA;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -40,30 +38,29 @@ body {
 }
 .mono { font-family: 'IBM Plex Mono', monospace; }
 header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 18px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 20; }
-.logo { width: 40px; height: 40px; border: 1.5px solid var(--cyan); border-radius: 8px; color: var(--cyan); display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: 700; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; }
+.logo-img { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
 header h1 { font-size: 16px; letter-spacing: 0.5px; font-weight: 700; }
 header p { font-size: 10px; letter-spacing: 1.2px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
 main { width: 92%; max-width: 520px; margin: 22px auto; }
 .hero { text-align: center; padding: 34px 20px; }
+.hero img { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; }
 .badge { display: inline-block; border: 1px solid var(--cyan); color: var(--cyan); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.5px; }
-.hero h2 { font-size: 30px; margin: 18px 0 10px; line-height: 1.2; font-weight: 700; }
+.hero h2 { font-size: 28px; margin: 18px 0 10px; line-height: 1.2; font-weight: 700; }
 .hero p { line-height: 1.6; color: var(--ink-soft); margin-bottom: 22px; font-size: 14.5px; }
-button { width: 100%; padding: 13px; border: none; border-radius: 8px; background: var(--cyan); color: #06192B; font-size: 15px; cursor: pointer; margin-top: 10px; font-weight: 600; transition: transform 0.08s ease; }
+button { width: 100%; padding: 13px; border: none; border-radius: 8px; background: var(--cyan); color: #06192B; font-size: 15px; cursor: pointer; margin-top: 10px; font-weight: 600; }
 button:active { transform: scale(0.98); }
 button:disabled { background: #3A4E63; color: #7C8FA3; cursor: not-allowed; }
 .secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
 .danger-btn { background: var(--red); color: #fff; }
 .card { background: var(--panel); border: 1px solid var(--line); padding: 20px; border-radius: 12px; margin-bottom: 16px; }
 .card h2 { margin-bottom: 4px; font-size: 18px; }
-.card h3 { font-size: 14.5px; margin-bottom: 8px; color: var(--ink); }
+.card h3 { font-size: 14.5px; margin-bottom: 8px; }
 .small { color: var(--ink-soft); font-size: 13px; margin-bottom: 12px; line-height: 1.5; }
 input, textarea, select { width: 100%; padding: 12px; margin: 6px 0; border: 1px solid var(--line); border-radius: 7px; font-size: 14.5px; background: #0C2138; color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; }
-input::placeholder, textarea::placeholder { color: #5E7690; }
 textarea { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; }
 input:focus, textarea:focus, select:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
 .hidden { display: none !important; }
 .error { color: var(--red); margin-top: 8px; font-size: 13px; }
-.note { color: var(--amber); background: rgba(232,163,61,0.1); border: 1px solid rgba(232,163,61,0.3); padding: 10px 12px; border-radius: 8px; font-size: 12.5px; margin-top: 10px; }
 .info { display: flex; justify-content: space-between; gap: 15px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .info span { text-align: right; color: var(--ink-soft); }
 .attendance-box { background: var(--panel-2); padding: 16px; border-radius: 10px; margin-top: 14px; }
@@ -71,12 +68,10 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--cyan); outl
 .stats div { flex: 1; padding: 12px 5px; background: var(--panel-2); border-radius: 8px; text-align: center; }
 .stats strong { display: block; font-size: 22px; font-family: 'IBM Plex Mono', monospace; }
 .stats span { font-size: 10px; color: var(--ink-soft); letter-spacing: 0.4px; }
-.session { text-align: center; background: var(--panel-2); padding: 18px; margin-top: 14px; border-radius: 12px; opacity: 0; transform: translateY(6px); transition: opacity 0.35s ease, transform 0.35s ease; }
-.session.active { opacity: 1; transform: translateY(0); }
+.session { text-align: center; background: var(--panel-2); padding: 18px; margin-top: 14px; border-radius: 12px; }
 .timer { font-size: 30px; font-weight: 700; margin: 8px; font-family: 'IBM Plex Mono', monospace; }
 .code { font-size: 28px; font-weight: 700; letter-spacing: 6px; background: #0C2138; border: 1px solid var(--line); padding: 14px; border-radius: 8px; margin: 10px 0; font-family: 'IBM Plex Mono', monospace; color: var(--cyan); }
 #qrBox { display: flex; justify-content: center; margin: 12px 0; }
-#qrBox canvas, #qrBox img { border-radius: 8px; }
 .progress-track { background: #0C2138; border: 1px solid var(--line); border-radius: 20px; height: 10px; overflow: hidden; margin: 10px 0 4px; }
 .progress-fill { background: var(--green); height: 100%; width: 0%; transition: width 0.5s ease; }
 .progress-label { font-size: 11.5px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; }
@@ -86,31 +81,29 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--cyan); outl
 .tabbar { display: flex; gap: 4px; margin-bottom: 16px; overflow-x: auto; }
 .tabbar button { margin-top: 0; flex: 1; padding: 9px 6px; font-size: 12px; background: transparent; color: var(--ink-soft); border: 1px solid var(--line); white-space: nowrap; }
 .tabbar button.active { background: var(--cyan); color: #06192B; border-color: var(--cyan); font-weight: 600; }
-.roster-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.roster-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.roster-row .rm-btn { background: none; border: none; color: var(--red); font-size: 15px; cursor: pointer; width: auto; padding: 0 4px; margin: 0; flex-shrink: 0; }
+.history-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; flex-wrap: wrap; }
+.dl-btn { background: none; border: 1px solid var(--line); color: var(--cyan); border-radius: 6px; padding: 4px 10px; font-size: 11px; width: auto; margin: 0; }
 footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; font-family: 'IBM Plex Mono', monospace; }
 .link-btn { background: none; border: none; color: var(--cyan); font-size: 13px; text-decoration: underline; padding: 0; width: auto; margin-top: 14px; }
 .risk-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; align-items: center; }
 .risk-pct { font-family: 'IBM Plex Mono', monospace; font-weight: 700; padding: 3px 9px; border-radius: 6px; font-size: 12px; }
 .risk-low { background: rgba(224,101,74,0.15); color: var(--red); }
-.risk-ok { background: rgba(79,191,139,0.15); color: var(--green); }
 .streak-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--panel-2); border: 1px solid var(--line); padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-top: 10px; }
 .streak-badge strong { color: var(--amber); font-family: 'IBM Plex Mono', monospace; }
 .success-overlay { position: fixed; inset: 0; background: rgba(11,31,53,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
 .success-overlay.show { opacity: 1; pointer-events: auto; }
-.success-check { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--green); transform: scale(0.6); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
-.success-overlay.show .success-check { transform: scale(1); }
-.success-overlay p { margin-top: 18px; font-size: 15px; color: var(--ink); }
+.success-check { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--green); }
+.success-overlay p { margin-top: 18px; font-size: 15px; }
 .rollcall-box { background: rgba(232,163,61,0.08); border: 1px solid rgba(232,163,61,0.3); border-radius: 10px; padding: 14px; margin-top: 12px; }
 .rollcall-box h4 { color: var(--amber); font-size: 13px; margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; }
-table.export-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-table.export-table th, table.export-table td { text-align: left; padding: 7px 4px; border-bottom: 1px solid var(--line); }
-table.export-table th { color: var(--ink-soft); font-weight: 500; font-size: 11px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo mono">V</div>
+  <img class="logo-img" src="66156eaccdf28ba5c103f12465452fd7.png" alt="NIMechE Logo">
   <div>
     <h1>VERIFIED'S</h1>
     <p>SMART CLASS ATTENDANCE · MPE 200L</p>
@@ -118,13 +111,13 @@ table.export-table th { color: var(--ink-soft); font-weight: 500; font-size: 11p
 </header>
 
 <div id="setupBanner" class="hidden" style="background:var(--red); color:#fff; padding:12px 20px; font-size:13px; text-align:center;">
-  ⚠️ Firebase isn't configured yet. Open this file's code and paste your firebaseConfig values near the top of the &lt;script&gt; section, then reload.
+  ⚠️ Firebase isn't configured yet.
 </div>
 
 <main>
 
-  <section id="hero" class="hero card"> 
-    <img src="66156eaccdf28ba5c103f12465452fd7.png" alt="NIMechE Logo" style="width:60px; height:60px; border-radius:50%; margin-bottom:10px;">
+  <section id="hero" class="hero card">
+    <img src="66156eaccdf28ba5c103f12465452fd7.png" alt="NIMechE Logo">
     <span class="badge mono">MPE · 200 LEVEL</span>
     <h2>Attendance, verified.</h2>
     <p>A shared, location-checked attendance system for Mechanical Production Engineering 200L. Your check-in updates the class rep's dashboard instantly.</p>
@@ -132,18 +125,16 @@ table.export-table th { color: var(--ink-soft); font-weight: 500; font-size: 11p
     <button class="secondary" onclick="showView('adminLogin')">001 / Admin Login</button>
   </section>
 
-  <!-- STUDENT LOGIN -->
   <section id="studentLogin" class="card hidden">
     <h2>Student Login</h2>
     <p class="small">Enter your name and matric number exactly as registered.</p>
     <input id="studentName" type="text" placeholder="Full Name">
-    <input id="matricNumber" type="text" placeholder="Matric Number e.g. MPE/2023/045">
+    <input id="matricNumber" type="text" placeholder="Matric Number e.g. 2025030227497">
     <button onclick="studentLogin()">Continue</button>
     <p id="studentError" class="error"></p>
     <button class="link-btn" onclick="showView('hero')">← Back</button>
   </section>
 
-  <!-- ADMIN LOGIN -->
   <section id="adminLogin" class="card hidden">
     <h2>001 / Admin Login</h2>
     <input id="adminPassword" type="password" placeholder="Admin password">
@@ -152,36 +143,29 @@ table.export-table th { color: var(--ink-soft); font-weight: 500; font-size: 11p
     <button class="link-btn" onclick="showView('hero')">← Back</button>
   </section>
 
-  <!-- STUDENT DASHBOARD -->
   <section id="studentDashboard" class="card hidden">
     <h2>Welcome, <span id="studentDisplay"></span></h2>
     <div class="info"><strong>Department</strong><span>Mechanical Production Engineering</span></div>
     <div class="info"><strong>Level</strong><span>200L</span></div>
     <div class="info"><strong>Matric Number</strong><span class="mono" id="matricDisplay"></span></div>
-
-    <div class="field" style="margin-top:14px;">
-      <label class="small" style="margin-bottom:2px; display:block;">Course</label>
+    <div style="margin-top:14px;">
+      <label class="small" style="display:block; margin-bottom:2px;">Course</label>
       <select id="studentCourseSelect" onchange="onStudentCourseChange()"></select>
     </div>
-
     <div id="studentStreak"></div>
-
     <div class="attendance-box">
       <h3>Attendance</h3>
       <p id="attendanceStatus">No active attendance session.</p>
       <input id="codeInput" type="text" placeholder="Enter the code shown in class" class="hidden mono" style="text-transform:uppercase;">
       <button id="markButton" onclick="markAttendance()" disabled>Mark Me Present</button>
     </div>
-
     <button class="link-btn" onclick="logoutStudent()">Log out</button>
   </section>
 
-  <!-- ADMIN DASHBOARD -->
   <section id="adminDashboard" class="card hidden">
     <h2>001 Dashboard</h2>
-
-    <div class="field" style="margin: 12px 0;">
-      <label class="small" style="margin-bottom:2px; display:block;">Course</label>
+    <div style="margin:12px 0;">
+      <label class="small" style="display:block; margin-bottom:2px;">Course</label>
       <select id="adminCourseSelect" onchange="onAdminCourseChange()"></select>
     </div>
 
@@ -192,19 +176,14 @@ table.export-table th { color: var(--ink-soft); font-weight: 500; font-size: 11p
       <button id="tabSettings" onclick="showAdminTab('settings')">Settings</button>
     </div>
 
-    <!-- SESSION TAB -->
     <div id="adminTabSession">
       <div class="stats">
         <div><strong id="totalStudents">0</strong><span>ON ROLL</span></div>
         <div><strong id="presentStudents">0</strong><span>PRESENT</span></div>
         <div><strong id="absentStudents">0</strong><span>ABSENT</span></div>
       </div>
-
-      <div id="sessionControls">
-        <button onclick="startAttendance()">Start Attendance</button>
-      </div>
-
-      <div id="adminSession" class="session">
+      <div id="sessionControls"><button onclick="startAttendance()">Start Attendance</button></div>
+      <div id="adminSession" class="session hidden">
         <h3>LIVE ATTENDANCE</h3>
         <div class="timer mono" id="timer">10:00</div>
         <div class="code" id="attendanceCode">------</div>
@@ -216,58 +195,47 @@ table.export-table th { color: var(--ink-soft); font-weight: 500; font-size: 11p
         <div id="rollcallResult"></div>
         <button class="danger-btn" onclick="closeAttendance()">Close Attendance Now</button>
       </div>
-
       <h3 class="list-title">Live Check-ins</h3>
       <div id="attendanceList">No students have marked attendance yet.</div>
     </div>
 
-    <!-- HISTORY TAB -->
     <div id="adminTabHistory" class="hidden">
       <h3>Past sessions</h3>
-      <p class="small">Showing the most recent sessions for this course.</p>
+      <p class="small">Each session's list can be downloaded separately.</p>
       <div id="historyList"></div>
       <button class="secondary" onclick="exportSummaryCsv()">Export Attendance Summary (CSV)</button>
-
       <h3 class="list-title">At-risk students</h3>
       <p class="small" id="riskThresholdNote"></p>
       <div id="riskList"></div>
     </div>
 
-    <!-- ROSTER TAB -->
     <div id="adminTabRoster" class="hidden">
       <p class="small">Paste your class list below, one student per line: <span class="mono">Matric Number, Full Name</span></p>
-      <textarea id="rosterInput" rows="8" placeholder="MPE/2023/001, Chidera Okafor
-MPE/2023/002, Ifeoma Nwosu"></textarea>
+      <textarea id="rosterInput" rows="6" placeholder="2025030227497, John Okafor"></textarea>
       <button onclick="saveRoster()">Save Roster</button>
       <p id="rosterSaved" class="small"></p>
       <h3 class="list-title">Current Roster (<span id="rosterCount">0</span>)</h3>
       <div id="rosterList"></div>
     </div>
 
-    <!-- SETTINGS TAB -->
     <div id="adminTabSettings" class="hidden">
       <h3>Courses</h3>
-      <p class="small">One line per course (e.g. Engineering Drawing, Thermodynamics I). Attendance is tracked separately per course.</p>
-      <textarea id="coursesInput" rows="4" placeholder="Engineering Drawing
-Thermodynamics I
-Fluid Mechanics"></textarea>
+      <p class="small">One line per course. Attendance is tracked separately per course.</p>
+      <textarea id="coursesInput" rows="4" placeholder="Fluid Mechanics"></textarea>
       <button onclick="saveCourses()">Save Courses</button>
       <p id="coursesSaved" class="small"></p>
 
       <h3 class="list-title">Change admin password</h3>
-      <p class="small">Stored in shared storage, not encrypted — good enough to keep classmates out, not hacker-proof.</p>
       <input id="newPassword" type="password" placeholder="New admin password">
       <button onclick="changePassword()">Save Password</button>
       <p id="passwordSaved" class="small"></p>
 
       <h3 class="list-title">Session length</h3>
-      <div class="small">How long each attendance window stays open, in minutes.</div>
       <input id="sessionMinutes" type="number" min="1" max="60" value="10">
       <button onclick="saveSessionLength()">Save</button>
       <p id="lengthSaved" class="small"></p>
 
       <h3 class="list-title">Restrict check-in to school location</h3>
-      <p class="small">Stand where classes hold and tap below. Students must be within your radius to check in.</p>
       <div id="venueStatus" class="small"></div>
       <button onclick="setVenue()">Set Current Location as School</button>
       <label class="small" style="display:block; margin-top:10px;">Allowed radius (meters)</label>
@@ -277,7 +245,6 @@ Fluid Mechanics"></textarea>
       <p id="venueSaved" class="small"></p>
 
       <h3 class="list-title">At-risk threshold</h3>
-      <div class="small">Flag students whose attendance falls below this percentage.</div>
       <input id="thresholdInput" type="number" min="1" max="100" value="75">
       <button onclick="saveThreshold()">Save</button>
       <p id="thresholdSaved" class="small"></p>
@@ -288,10 +255,7 @@ Fluid Mechanics"></textarea>
 
 </main>
 
-<footer>
-  VERIFIED'S SMART CLASS ATTENDANCE APP<br>
-  Mechanical Production Engineering · 200L
-</footer>
+<footer>VERIFIED'S SMART CLASS ATTENDANCE APP<br>Mechanical Production Engineering · 200L</footer>
 
 <div class="success-overlay" id="successOverlay">
   <div class="success-check">✓</div>
@@ -299,10 +263,6 @@ Fluid Mechanics"></textarea>
 </div>
 
 <script>
-/* =========================
-   FIREBASE SETUP — paste your project's config here.
-   Get this from: Firebase Console → Project Settings → Your apps → Web app (</>)
-========================= */
 const firebaseConfig = {
   apiKey: "AIzaSyAYuF-mqCMtHg@gnTzi0Sp-LBY4bE1pGdA",
   authDomain: "verified-smart-attendance-app.firebaseapp.com",
@@ -316,10 +276,6 @@ let db = null;
 let firebaseReady = false;
 
 function initFirebase() {
-  if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-    document.getElementById('setupBanner').classList.remove('hidden');
-    return false;
-  }
   try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
@@ -327,36 +283,25 @@ function initFirebase() {
     return true;
   } catch (e) {
     document.getElementById('setupBanner').classList.remove('hidden');
-    document.getElementById('setupBanner').textContent = '⚠️ Firebase failed to initialize — check your config values.';
     return false;
   }
 }
 
-/* =========================
-   FIRESTORE DATA LAYER
-   Collections:
-   - config/main                                  : { roster, adminPassword, sessionMinutes, venue, venueRadius, threshold, courses[] }
-   - sessions/{courseKey}                          : { id, startedAt, durationSeconds, code, open }
-   - sessionsIndex/{courseKey}                     : { sessions: [ {id, startedAt, durationSeconds, closedAt, presentCount} ] }
-   - attendance/{courseKey_sessionId_matricKey}    : { courseKey, sessionId, matricKey, name, matric, time }
-========================= */
-
-function defaultConfig() { return { roster: {}, adminPassword: '001', sessionMinutes: 10, venue: null, venueRadius: 150, threshold: 75, courses: ['General'] }; }
+function defaultConfig() {
+  return { roster: {}, adminPassword: '001', sessionMinutes: 10, venue: null, venueRadius: 150, threshold: 75, courses: ['General'] };
+}
 
 let config = defaultConfig();
 let session = null;
 let currentStudent = { name: '', matric: '', matricKey: '' };
 let currentCourse = 'General';
 let adminCurrentCourse = 'General';
-
 let pollInterval, timerInterval, codeInterval;
 let lastLiveRecords = [];
 
-/* ---------- helpers ---------- */
-
-function sanitizeKey(str) { return str.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '-'); }
+function sanitizeKey(str) { return String(str).trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '-'); }
 function courseKey(name) { return sanitizeKey(name); }
-function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str == null ? '' : str; return d.innerHTML; }
 
 async function loadConfig() {
   if (!firebaseReady) return;
@@ -366,7 +311,11 @@ async function loadConfig() {
   } catch (e) { config = defaultConfig(); }
   if (!config.courses || config.courses.length === 0) config.courses = ['General'];
 }
-async function saveConfig() { if (!firebaseReady) return; await db.collection('config').doc('main').set(config); }
+
+async function saveConfig() {
+  if (!firebaseReady) return;
+  await db.collection('config').doc('main').set(config);
+}
 
 async function loadSession(course) {
   if (!firebaseReady) { session = null; return; }
@@ -375,7 +324,11 @@ async function loadSession(course) {
     session = doc.exists ? doc.data() : null;
   } catch (e) { session = null; }
 }
-async function saveSession(course) { if (!firebaseReady) return; await db.collection('sessions').doc(courseKey(course)).set(session); }
+
+async function saveSession(course) {
+  if (!firebaseReady) return;
+  await db.collection('sessions').doc(courseKey(course)).set(session);
+}
 
 async function loadSessionsIndex(course) {
   if (!firebaseReady) return [];
@@ -384,12 +337,15 @@ async function loadSessionsIndex(course) {
     return doc.exists ? (doc.data().sessions || []) : [];
   } catch (e) { return []; }
 }
+
 async function saveSessionsIndex(course, idx) {
   if (!firebaseReady) return;
   await db.collection('sessionsIndex').doc(courseKey(course)).set({ sessions: idx });
 }
 
-function attendanceDocId(course, sessionId, matricKey) { return `${courseKey(course)}_${sessionId}_${matricKey}`; }
+function attendanceDocId(course, sessionId, matricKey) {
+  return `${courseKey(course)}_${sessionId}_${matricKey}`;
+}
 
 async function getAttendanceRecord(course, sessionId, matricKey) {
   if (!firebaseReady) return null;
@@ -421,8 +377,6 @@ function populateCourseSelect(selectEl, selected) {
   selectEl.innerHTML = config.courses.map(c => `<option value="${escapeHtml(c)}" ${c === selected ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
 }
 
-/* ---------- view switching ---------- */
-
 function showView(id) {
   document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
@@ -438,8 +392,6 @@ function showAdminTab(tab) {
   if (tab === 'roster') renderRoster();
   if (tab === 'history') renderHistoryAndRisk();
 }
-
-/* ---------- STUDENT LOGIN ---------- */
 
 async function studentLogin() {
   const name = document.getElementById('studentName').value.trim();
@@ -470,6 +422,7 @@ async function studentLogin() {
   showView('studentDashboard');
   await refreshStudentView();
   await renderStudentStreak();
+  clearInterval(pollInterval);
   pollInterval = setInterval(refreshStudentView, 3000);
 }
 
@@ -480,8 +433,6 @@ function onStudentCourseChange() {
 }
 
 function logoutStudent() { clearInterval(pollInterval); showView('hero'); }
-
-/* ---------- ADMIN LOGIN ---------- */
 
 async function adminLogin() {
   await loadConfig();
@@ -499,10 +450,11 @@ async function adminLogin() {
   document.getElementById('venueRadius').value = config.venueRadius || 150;
   document.getElementById('thresholdInput').value = config.threshold || 75;
   document.getElementById('coursesInput').value = config.courses.join('\n');
-  document.getElementById('venueStatus').textContent = config.venue ? `Location check is ON (radius ${config.venueRadius || 150}m).` : 'Location check is currently OFF.';
+  document.getElementById('venueStatus').textContent = config.venue ? `Location check is ON (radius ${config.venueRadius || 150}m).` : 'Location check is OFF.';
 
   await loadSession(adminCurrentCourse);
   await refreshAdminView();
+  clearInterval(pollInterval);
   pollInterval = setInterval(refreshAdminView, 3000);
 }
 
@@ -516,8 +468,6 @@ function logoutAdmin() {
   clearInterval(pollInterval); clearInterval(timerInterval); clearInterval(codeInterval);
   showView('hero');
 }
-
-/* ---------- ROSTER ---------- */
 
 async function saveRoster() {
   const raw = document.getElementById('rosterInput').value.trim();
@@ -549,12 +499,17 @@ function renderRoster() {
     <div class="roster-row">
       <span>${escapeHtml(name)}</span>
       <span class="mono" style="color:var(--ink-soft);">${escapeHtml(key)}</span>
-      <button onclick="removeStudent('${key}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 6px;">✕</button>
+      <button class="rm-btn" onclick="removeStudent('${key}')">✕</button>
     </div>
   `).join('');
 }
 
-/* ---------- SETTINGS ---------- */
+async function removeStudent(key) {
+  delete config.roster[key];
+  await saveConfig();
+  renderRoster();
+  updateStats();
+}
 
 async function saveCourses() {
   const raw = document.getElementById('coursesInput').value.trim();
@@ -631,18 +586,14 @@ function getStudentLocation() {
   });
 }
 
-/* ---------- SESSION CONTROL (admin) ---------- */
-
 async function startAttendance() {
   await loadConfig();
-  const id = Date.now().toString(36);
-  session = { id, startedAt: Date.now(), durationSeconds: (config.sessionMinutes || 10) * 60, code: generateCodeString(), codeSetAt: Date.now(), open: true };
+  const now = Date.now().toString(36);
+  session = { id: now, startedAt: Date.now(), durationSeconds: (config.sessionMinutes || 10) * 60, code: generateCodeString(), codeSetAt: Date.now(), open: true };
   await saveSession(adminCurrentCourse);
 
   document.getElementById('sessionControls').classList.add('hidden');
-  const sessionEl = document.getElementById('adminSession');
-  sessionEl.classList.remove('hidden');
-  requestAnimationFrame(() => sessionEl.classList.add('active'));
+  document.getElementById('adminSession').classList.remove('hidden');
 
   clearInterval(timerInterval); clearInterval(codeInterval);
   renderQr();
@@ -693,20 +644,21 @@ async function closeAttendance() {
     await saveSessionsIndex(adminCurrentCourse, idx);
   }
   clearInterval(timerInterval); clearInterval(codeInterval);
-  document.getElementById('adminSession').classList.remove('active');
   document.getElementById('adminSession').classList.add('hidden');
   document.getElementById('sessionControls').classList.remove('hidden');
   document.getElementById('rollcallResult').innerHTML = '';
+  session = null;
+  lastLiveRecords = [];
+  document.getElementById('attendanceList').innerHTML = 'No students have marked attendance yet.';
+  updateStats();
 }
 
 function rollCall() {
   const box = document.getElementById('rollcallResult');
   if (lastLiveRecords.length === 0) { box.innerHTML = '<p class="small">No check-ins yet to spot-check.</p>'; return; }
   const shuffled = [...lastLiveRecords].sort(() => Math.random() - 0.5).slice(0, 5);
-  box.innerHTML = `<div class="rollcall-box"><h4>SPOT-CHECK · CONFIRM THESE ARE IN THE ROOM</h4>${shuffled.map(r => `<div class="student-row"><span>${escapeHtml(r.name)}</span><span class="mono" style="color:var(--ink-soft);">${escapeHtml(r.matric)}</span></div>`).join('')}</div>`;
+  box.innerHTML = `<div class="rollcall-box"><h4>SPOT-CHECK · CONFIRM THESE ARE IN THE ROOM</h4>${shuffled.map(r => `<div class="student-row"><span>${escapeHtml(r.name)}</span></div>`).join('')}</div>`;
 }
-
-/* ---------- STUDENT: viewing + marking ---------- */
 
 async function refreshStudentView() {
   await loadSession(currentCourse);
@@ -714,17 +666,34 @@ async function refreshStudentView() {
   const button = document.getElementById('markButton');
   const codeInput = document.getElementById('codeInput');
 
-  if (!session) { status.textContent = 'No active attendance session.'; button.disabled = true; codeInput.classList.add('hidden'); return; }
+  if (!session || !session.open) {
+    status.textContent = 'No active attendance session.';
+    button.disabled = true;
+    codeInput.classList.add('hidden');
+    return;
+  }
 
   const elapsed = Math.floor((Date.now() - session.startedAt) / 1000);
   const stillOpen = session.open && elapsed < session.durationSeconds;
-  if (!stillOpen) { status.textContent = 'No active attendance session.'; button.disabled = true; codeInput.classList.add('hidden'); return; }
+  if (!stillOpen) {
+    status.textContent = 'No active attendance session.';
+    button.disabled = true;
+    codeInput.classList.add('hidden');
+    return;
+  }
 
   const rec = await getAttendanceRecord(currentCourse, session.id, currentStudent.matricKey);
   const already = !!rec;
 
-  if (already) { status.textContent = '✅ Your attendance has already been recorded for this session.'; button.disabled = true; codeInput.classList.add('hidden'); }
-  else { status.textContent = 'Attendance is currently OPEN. Enter the code shown in class.'; button.disabled = false; codeInput.classList.remove('hidden'); }
+  if (already) {
+    status.textContent = '✅ Your attendance has already been recorded for this session.';
+    button.disabled = true;
+    codeInput.classList.add('hidden');
+  } else {
+    status.textContent = 'Attendance is currently OPEN. Enter the code shown in class.';
+    button.disabled = false;
+    codeInput.classList.remove('hidden');
+  }
 }
 
 async function markAttendance() {
@@ -742,15 +711,18 @@ async function markAttendance() {
     status.textContent = 'Checking your location...';
     let coords;
     try { coords = await getStudentLocation(); }
-    catch (e) { status.textContent = 'Location access is required to check in.'; alert('This class requires location access to mark attendance. Please allow location permission and try again.'); return; }
+    catch (e) { status.textContent = 'Location access is required to check in.'; alert('This class requires location access to mark attendance. Please allow location access and try again.'); return; }
     const dist = distanceMeters(coords.latitude, coords.longitude, config.venue.lat, config.venue.lng);
-    if (dist > (config.venueRadius || 150)) { status.textContent = `You appear to be too far from class (about ${Math.round(dist)}m away).`; alert('You are not close enough to the classroom to mark attendance.'); return; }
+    if (dist > (config.venueRadius || 150)) {
+      status.textContent = `You appear to be too far from class (about ${Math.round(dist)}m away).`;
+      return;
+    }
   }
 
   const existing = await getAttendanceRecord(currentCourse, session.id, currentStudent.matricKey);
   if (existing) { status.textContent = '✅ Your attendance has already been recorded.'; document.getElementById('markButton').disabled = true; return; }
 
-  const record = { name: currentStudent.name, matric: currentStudent.matric, time: new Date().toLocaleTimeString() };
+  const record = { name: currentStudent.name, matric: currentStudent.matric, time: new Date().toLocaleTimeString(), markedAt: Date.now() };
   await setAttendanceRecord(currentCourse, session.id, currentStudent.matricKey, record);
 
   status.textContent = '✅ Attendance recorded successfully.';
@@ -778,8 +750,6 @@ async function renderStudentStreak() {
   box.innerHTML = `<div class="streak-badge">🔥 <span>Current streak:</span> <strong>${streak}</strong> <span>session${streak===1?'':'s'}</span></div>`;
 }
 
-/* ---------- ADMIN: live dashboard ---------- */
-
 async function refreshAdminView() {
   await loadConfig();
   await loadSession(adminCurrentCourse);
@@ -790,20 +760,24 @@ async function refreshAdminView() {
     if (elapsed >= session.durationSeconds) { await closeAttendance(); }
     else {
       document.getElementById('sessionControls').classList.add('hidden');
-      const sessionEl = document.getElementById('adminSession');
-      sessionEl.classList.remove('hidden');
-      sessionEl.classList.add('active');
+      document.getElementById('adminSession').classList.remove('hidden');
       updateTimerDisplay();
     }
+  } else {
+    document.getElementById('sessionControls').classList.remove('hidden');
+    document.getElementById('adminSession').classList.add('hidden');
   }
   if (session) await refreshLiveList();
 }
 
-function updateStats() { document.getElementById('totalStudents').textContent = Object.keys(config.roster).length; }
+function updateStats() {
+  document.getElementById('totalStudents').textContent = Object.keys(config.roster).length;
+}
 
 async function refreshLiveList() {
   if (!session) return;
-  const records = (await fetchSessionRecords(adminCurrentCourse, session.id)).sort((a,b) => a.time > b.time ? 1 : -1);
+  const records = await fetchSessionRecords(adminCurrentCourse, session.id);
+  records.sort((a,b) => (b.markedAt||0) - (a.markedAt||0));
   lastLiveRecords = records;
   const total = Object.keys(config.roster).length;
 
@@ -815,55 +789,47 @@ async function refreshLiveList() {
   document.getElementById('progressLabel').textContent = `${records.length} / ${total} checked in`;
 
   const list = document.getElementById('attendanceList');
-  if (records.length === 0) { list.textContent = 'No students have marked attendance yet.'; return; }
+  if (records.length === 0) { list.innerHTML = 'No students have marked attendance yet.'; return; }
   list.innerHTML = records.map(r => `
-    <div class="student-row"><div><strong>${escapeHtml(r.name)}</strong><br><small style="color:var(--ink-soft);" class="mono">${escapeHtml(r.matric)}</small></div><div class="present">✓ ${escapeHtml(r.time)}</div></div>
+    <div class="student-row"><div><strong>${escapeHtml(r.name)}</strong><br><small style="color:var(--ink-soft);" class="mono">${escapeHtml(r.matric)}</small></div><span class="present">✔ ${escapeHtml(r.time || '')}</span></div>
   `).join('');
 }
-
-/* ---------- HISTORY + AT-RISK ---------- */
 
 async function renderHistoryAndRisk() {
   const idx = (await loadSessionsIndex(adminCurrentCourse)).sort((a,b) => b.startedAt - a.startedAt);
   const recent = idx.slice(0, 20);
+  const total = Object.keys(config.roster).length;
 
   const historyList = document.getElementById('historyList');
-  if (recent.length === 0) { historyList.innerHTML = '<p class="small">No closed sessions yet for this course.</p>'; }
-  else {
+  if (recent.length === 0) {
+    historyList.innerHTML = '<p class="small">No closed sessions yet for this course.</p>';
+  } else {
     historyList.innerHTML = recent.map(s => {
-  const d = new Date(s.startedAt);
-  const total = Object.keys(config.roster).length;
-  const dateLabel = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' · ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-  return `<div class="roster-row"><span>${dateLabel}</span><span>${s.present || 0}/${total}</span><button onclick="exportSessionCsv('${s.id}', '${dateLabel}')" style="background:none;border:1px solid var(--line);color:var(--cyan);border-radius:6px;padding:3px 8px;font-size:11px;margin-left:8px;">Download</button></div>`;
-}).join('');
+      const d = new Date(s.startedAt);
+      const dateLabel = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' · ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      return `<div class="history-row"><span>${dateLabel}</span><span>${s.presentCount || 0}/${total}</span><button class="dl-btn" onclick="exportSessionCsv('${s.id}','${dateLabel}')">Download</button></div>`;
+    }).join('');
+  }
+
   document.getElementById('riskThresholdNote').textContent = `Based on the last ${recent.length} session(s), below ${config.threshold || 75}% attendance.`;
 
-  // aggregate presence per student across recent sessions
   const presenceCount = {};
   Object.keys(config.roster).forEach(k => presenceCount[k] = 0);
-
   for (const s of recent) {
     const records = await fetchSessionRecords(adminCurrentCourse, s.id);
-    records.forEach(r => {
-      const k = sanitizeKey(r.matric);
-      if (presenceCount[k] !== undefined) presenceCount[k]++;
-    });
+    records.forEach(r => { const k = sanitizeKey(r.matric); if (presenceCount[k] !== undefined) presenceCount[k]++; });
   }
 
   const riskListEl = document.getElementById('riskList');
-  if (recent.length === 0 || Object.keys(config.roster).length === 0) {
-    riskListEl.innerHTML = '<p class="small">Not enough data yet.</p>';
-    return;
-  }
+  if (recent.length === 0 || total === 0) { riskListEl.innerHTML = '<p class="small">Not enough data yet.</p>'; return; }
+
   const rows = Object.entries(config.roster).map(([key, name]) => {
     const pct = Math.round((presenceCount[key] / recent.length) * 100);
     return { key, name, pct };
   }).filter(r => r.pct < (config.threshold || 75)).sort((a,b) => a.pct - b.pct);
 
   if (rows.length === 0) { riskListEl.innerHTML = '<p class="small">No students below the threshold. 🎉</p>'; return; }
-  riskListEl.innerHTML = rows.map(r => `
-    <div class="risk-row"><span>${escapeHtml(r.name)}</span><span class="risk-pct risk-low">${r.pct}%</span></div>
-  `).join('');
+  riskListEl.innerHTML = rows.map(r => `<div class="risk-row"><span>${escapeHtml(r.name)}</span><span class="risk-pct risk-low">${r.pct}%</span></div>`).join('');
 }
 
 function downloadCsv(filename, rows) {
@@ -879,11 +845,9 @@ function downloadCsv(filename, rows) {
 async function exportSessionCsv(sessionId, dateLabel) {
   const records = await fetchSessionRecords(adminCurrentCourse, sessionId);
   const rows = [['Name','Matric Number','Time Marked']];
-  records.forEach(r => {
-    const time = r.markedAt ? new Date(r.markedAt).toLocaleTimeString() : '';
-    rows.push([r.name, r.matric, time]);
-  });
-  downloadCsv(`${adminCurrentCourse}-${dateLabel.replace(/[\s:·]/g,'_')}.csv`, rows);
+  records.forEach(r => rows.push([r.name, r.matric, r.time || '']));
+  const safeName = dateLabel.replace(/[\s:·]+/g,'_');
+  downloadCsv(`${adminCurrentCourse}-${safeName}.csv`, rows);
 }
 
 async function exportSummaryCsv() {
@@ -903,14 +867,9 @@ async function exportSummaryCsv() {
   downloadCsv(`${adminCurrentCourse}-attendance-summary.csv`, rows);
 }
 
-/* ---------- INIT ---------- */
-
 async function init() {
-  const ok = await initFirebase();
-  if (!ok) {
-    showView('hero');
-    return; // banner already shown; app stays disabled until config is filled in
-  }
+  const ok = initFirebase();
+  if (!ok) { showView('hero'); return; }
   await loadConfig();
   showView('hero');
 }
