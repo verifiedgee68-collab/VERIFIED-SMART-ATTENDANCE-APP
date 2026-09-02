@@ -831,12 +831,11 @@ async function renderHistoryAndRisk() {
   if (recent.length === 0) { historyList.innerHTML = '<p class="small">No closed sessions yet for this course.</p>'; }
   else {
     historyList.innerHTML = recent.map(s => {
-      const d = new Date(s.startedAt);
-      const total = Object.keys(config.roster).length;
-      return `<div class="roster-row"><span>${d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} · ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span><span class="mono">${s.presentCount}/${total || '?'}</span></div>`;
-    }).join('');
-  }
-
+  const d = new Date(s.startedAt);
+  const total = Object.keys(config.roster).length;
+  const dateLabel = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' · ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  return `<div class="roster-row"><span>${dateLabel}</span><span>${s.present || 0}/${total}</span><button onclick="exportSessionCsv('${s.id}', '${dateLabel}')" style="background:none;border:1px solid var(--line);color:var(--cyan);border-radius:6px;padding:3px 8px;font-size:11px;margin-left:8px;">Download</button></div>`;
+}).join('');
   document.getElementById('riskThresholdNote').textContent = `Based on the last ${recent.length} session(s), below ${config.threshold || 75}% attendance.`;
 
   // aggregate presence per student across recent sessions
@@ -877,6 +876,16 @@ function downloadCsv(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
+async function exportSessionCsv(sessionId, dateLabel) {
+  const records = await fetchSessionRecords(adminCurrentCourse, sessionId);
+  const rows = [['Name','Matric Number','Time Marked']];
+  records.forEach(r => {
+    const time = r.markedAt ? new Date(r.markedAt).toLocaleTimeString() : '';
+    rows.push([r.name, r.matric, time]);
+  });
+  downloadCsv(`${adminCurrentCourse}-${dateLabel.replace(/[\s:·]/g,'_')}.csv`, rows);
+}
+
 async function exportSummaryCsv() {
   const idx = await loadSessionsIndex(adminCurrentCourse);
   const rows = [['Name','Matric Number','Sessions Present','Total Sessions','Attendance %']];
@@ -897,7 +906,7 @@ async function exportSummaryCsv() {
 /* ---------- INIT ---------- */
 
 async function init() {
-  const ok = initFirebase();
+  const ok = await initFirebase();
   if (!ok) {
     showView('hero');
     return; // banner already shown; app stays disabled until config is filled in
