@@ -258,10 +258,8 @@ footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; f
       <p class="small">Students can only mark attendance when their device location is inside this saved school zone. The saved place is also shown on every student's dashboard.</p>
       <label class="small" style="display:block; margin-top:8px;">Location name</label>
       <input id="venueName" type="text" placeholder="e.g. FAPS Auditorium, Room 204, etc.">
-      <label class="small" style="display:block; margin-top:8px;">Building / identifying description</label>
-      <input id="venueDescription" type="text" placeholder="e.g. Lecture hall / building description">
       <div id="venueStatus" class="small"></div>
-      <button onclick="setVenue()">📍 Set This Exact Place as Lecture Venue</button>
+      <button onclick="setVenue()">📍 Automatically Set My Current Location</button>
       <label class="small" style="display:block; margin-top:10px;">Allowed radius (meters)</label>
       <input id="venueRadius" type="number" min="20" max="2000" value="100">
       <button onclick="saveVenueRadius()">Save Radius</button>
@@ -613,7 +611,6 @@ function updateVenueStatusText(prefix='Location check is ON') {
   const v = config.venue;
   const acc = v.accuracy ? ` · saved GPS accuracy ±${Math.round(v.accuracy)}m` : '';
   el.innerHTML = `<span class="location-ok">✓ ${escapeHtml(prefix)}</span><br>
-    ${escapeHtml(v.name || 'Lecture Venue')} · ${escapeHtml(v.description || 'Exact GPS attendance zone')}<br>
     <span class="coords">Coordinates: ${Number(v.lat).toFixed(6)}, ${Number(v.lng).toFixed(6)} · Radius: ${config.venueRadius || 100}m${acc}</span>`;
 }
 
@@ -655,25 +652,17 @@ async function getBestVenueLocation() {
 
 function setVenue() {
   const statusEl = document.getElementById('venueStatus');
-  const name = document.getElementById('venueName').value.trim();
-  const description = document.getElementById('venueDescription').value.trim();
-
-  if (!name) {
-    statusEl.innerHTML = '<span class="location-warn">Enter the name of the lecture venue first, then set the GPS location here.</span>';
-    document.getElementById('venueName').focus();
-    return;
-  }
   if (!navigator.geolocation) {
     statusEl.innerHTML = '<span class="location-bad">Your browser does not support location.</span>';
     return;
   }
 
-  statusEl.textContent = 'Getting your exact current GPS position... Stay at the lecture venue, preferably in an open area, and allow precise location access.';
+  statusEl.textContent = 'Automatically detecting your current location... Please allow precise location access and wait for GPS to settle.';
 
   getBestVenueLocation().then(async (pos) => {
     const accuracy = Number(pos.coords.accuracy);
-    if (!Number.isFinite(accuracy) || accuracy > 100) {
-      statusEl.innerHTML = `<span class="location-warn">Best GPS fix received is only ±${Math.round(accuracy || 0)}m. The app will not save this as the exact lecture venue yet. Move outdoors, turn on Precise Location, wait for GPS to settle, and try again.</span>`;
+    if (!Number.isFinite(accuracy) || accuracy > 200) {
+      statusEl.innerHTML = `<span class="location-warn">Best GPS fix received is only ±${Math.round(accuracy || 0)}m. The GPS reading is too inaccurate to use safely. Turn on Precise Location, move to an area with better GPS reception, and try again.</span>`;
       return;
     }
 
@@ -681,8 +670,7 @@ function setVenue() {
       lat: pos.coords.latitude,
       lng: pos.coords.longitude,
       accuracy,
-      name,
-      description,
+      name: '',
       setAt: Date.now()
     };
     config.venueRadius = Math.max(10, parseInt(document.getElementById('venueRadius').value) || 100);
