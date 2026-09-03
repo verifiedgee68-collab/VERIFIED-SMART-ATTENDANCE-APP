@@ -257,11 +257,11 @@ footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; f
       <h3 class="list-title">📍 School Location Check-In</h3>
       <p class="small">Students can only mark attendance when their device location is inside this saved school zone. The saved place is also shown on every student's dashboard.</p>
       <label class="small" style="display:block; margin-top:8px;">Location name</label>
-      <input id="venueName" type="text" placeholder="Engineering Faculty">
+      <input id="venueName" type="text" placeholder="e.g. FAPS Auditorium, Room 204, etc.">
       <label class="small" style="display:block; margin-top:8px;">Building / identifying description</label>
-      <input id="venueDescription" type="text" placeholder="Faculty of Engineering, ESUT">
+      <input id="venueDescription" type="text" placeholder="e.g. Lecture hall / building description">
       <div id="venueStatus" class="small"></div>
-      <button onclick="setVenue()">📌 Set Current Location as School</button>
+      <button onclick="setVenue()">📍 Set This Exact Place as Lecture Venue</button>
       <label class="small" style="display:block; margin-top:10px;">Allowed radius (meters)</label>
       <input id="venueRadius" type="number" min="20" max="2000" value="100">
       <button onclick="saveVenueRadius()">Save Radius</button>
@@ -478,8 +478,8 @@ async function adminLogin() {
   showAdminTab('session');
   document.getElementById('sessionMinutes').value = config.sessionMinutes;
   document.getElementById('venueRadius').value = config.venueRadius || 100;
-  document.getElementById('venueName').value = config.venue?.name || 'Engineering Faculty';
-  document.getElementById('venueDescription').value = config.venue?.description || 'Faculty of Engineering, ESUT';
+  document.getElementById('venueName').value = config.venue?.name || '';
+  document.getElementById('venueDescription').value = config.venue?.description || '';
   document.getElementById('thresholdInput').value = config.threshold || 75;
   document.getElementById('coursesInput').value = config.courses.join('\n');
   updateVenueStatusText();
@@ -598,8 +598,8 @@ function renderVenueForStudent() {
   }
 
   const v = config.venue;
-  nameEl.textContent = v.name || 'School Attendance Location';
-  subEl.textContent = v.description || 'Saved school attendance zone';
+  nameEl.textContent = v.name || 'Lecture Venue';
+  subEl.textContent = v.description || 'Exact GPS location set by admin';
   coordsEl.textContent = `Saved coordinates: ${Number(v.lat).toFixed(6)}, ${Number(v.lng).toFixed(6)} · Radius: ${config.venueRadius || 100}m`;
   statusEl.innerHTML = '<span class="location-warn">Tap Mark Me Present to verify your live GPS location.</span>';
 }
@@ -613,46 +613,86 @@ function updateVenueStatusText(prefix='Location check is ON') {
   const v = config.venue;
   const acc = v.accuracy ? ` · saved GPS accuracy ±${Math.round(v.accuracy)}m` : '';
   el.innerHTML = `<span class="location-ok">✓ ${escapeHtml(prefix)}</span><br>
-    ${escapeHtml(v.name || 'School Attendance Location')} · ${escapeHtml(v.description || 'School zone')}<br>
+    ${escapeHtml(v.name || 'Lecture Venue')} · ${escapeHtml(v.description || 'Exact GPS attendance zone')}<br>
     <span class="coords">Coordinates: ${Number(v.lat).toFixed(6)}, ${Number(v.lng).toFixed(6)} · Radius: ${config.venueRadius || 100}m${acc}</span>`;
+}
+
+async function getBestVenueLocation() {
+  if (!navigator.geolocation) throw new Error('Geolocation is not supported on this device.');
+
+  return new Promise((resolve, reject) => {
+    let best = null;
+    let finished = false;
+    let watchId = null;
+    const started = Date.now();
+    const maxWait = 15000;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      if (best) resolve(best);
+      else reject(new Error('No GPS position was received.'));
+    };
+
+    watchId = navigator.geolocation.watchPosition(pos => {
+      if (!best || pos.coords.accuracy < best.coords.accuracy) best = pos;
+      // A fix of 30m or better is normally a strong browser GPS fix.
+      if (pos.coords.accuracy <= 30) finish();
+      else if (Date.now() - started >= maxWait) finish();
+    }, err => {
+      if (!best) {
+        const reason = err.code === 1 ? 'Location permission was denied.' :
+                       err.code === 2 ? 'Your device could not determine a location.' :
+                       'Location request timed out.';
+        reject(new Error(reason));
+      }
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+
+    setTimeout(finish, maxWait + 500);
+  });
 }
 
 function setVenue() {
   const statusEl = document.getElementById('venueStatus');
-  const name = document.getElementById('venueName').value.trim() || 'Engineering Faculty';
-  const description = document.getElementById('venueDescription').value.trim() || 'Faculty of Engineering, ESUT';
+  const name = document.getElementById('venueName').value.trim();
+  const description = document.getElementById('venueDescription').value.trim();
 
+  if (!name) {
+    statusEl.innerHTML = '<span class="location-warn">Enter the name of the lecture venue first, then set the GPS location here.</span>';
+    document.getElementById('venueName').focus();
+    return;
+  }
   if (!navigator.geolocation) {
     statusEl.innerHTML = '<span class="location-bad">Your browser does not support location.</span>';
     return;
   }
 
-  statusEl.textContent = 'Getting a high-accuracy GPS fix... Keep your phone still and allow location access.';
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    if (pos.coords.accuracy > 100) {
-      statusEl.innerHTML = `<span class="location-warn">GPS accuracy is only ±${Math.round(pos.coords.accuracy)}m. Move to an open area and try again for a better fix.</span>`;
+  statusEl.textContent = 'Getting your exact current GPS position... Stay at the lecture venue, preferably in an open area, and allow precise location access.';
+
+  getBestVenueLocation().then(async (pos) => {
+    const accuracy = Number(pos.coords.accuracy);
+    if (!Number.isFinite(accuracy) || accuracy > 100) {
+      statusEl.innerHTML = `<span class="location-warn">Best GPS fix received is only ±${Math.round(accuracy || 0)}m. The app will not save this as the exact lecture venue yet. Move outdoors, turn on Precise Location, wait for GPS to settle, and try again.</span>`;
       return;
     }
 
     config.venue = {
       lat: pos.coords.latitude,
       lng: pos.coords.longitude,
-      accuracy: pos.coords.accuracy,
+      accuracy,
       name,
       description,
       setAt: Date.now()
     };
-    config.venueRadius = parseInt(document.getElementById('venueRadius').value) || 100;
+    config.venueRadius = Math.max(10, parseInt(document.getElementById('venueRadius').value) || 100);
     await saveConfig();
-    updateVenueStatusText('School location saved');
-    document.getElementById('venueSaved').textContent = '✓ Location saved. Students will now see this exact saved place and must be inside the radius to check in.';
+    updateVenueStatusText('Exact lecture venue saved');
+    document.getElementById('venueSaved').textContent = `✓ ${name} saved at your current GPS position. Students will see this venue and attendance will be checked against this exact saved point.`;
     renderVenueForStudent();
-  }, (err) => {
-    const reason = err.code === 1 ? 'Location permission was denied.' :
-                   err.code === 2 ? 'Your device could not determine a location.' :
-                   'Location request timed out.';
-    statusEl.innerHTML = `<span class="location-bad">${reason} Allow precise location and try again.</span>`;
-  }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+  }).catch(err => {
+    statusEl.innerHTML = `<span class="location-bad">${escapeHtml(err.message || 'Unable to get your current GPS location.')}</span>`;
+  });
 }
 
 async function refreshAdminVenueLocation() {
