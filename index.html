@@ -98,6 +98,18 @@ footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; f
 .success-overlay p { margin-top: 18px; font-size: 15px; }
 .rollcall-box { background: rgba(232,163,61,0.08); border: 1px solid rgba(232,163,61,0.3); border-radius: 10px; padding: 14px; margin-top: 12px; }
 .rollcall-box h4 { color: var(--amber); font-size: 13px; margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; }
+
+.location-card{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:12px}
+.location-card h3{font-size:14px;margin-bottom:7px}
+.location-name{font-size:16px;font-weight:700;color:var(--cyan)}
+.location-sub{font-size:12px;color:var(--ink-soft);margin-top:3px;line-height:1.45}
+.location-status{margin-top:9px;font-size:12px;line-height:1.5}
+.location-ok{color:var(--green);font-weight:600}
+.location-bad{color:var(--red);font-weight:600}
+.location-warn{color:var(--amber);font-weight:600}
+.coords{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);word-break:break-all;margin-top:7px}
+.location-btn{margin-top:9px}
+
 </style>
 </head>
 <body>
@@ -153,6 +165,13 @@ footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; f
       <select id="studentCourseSelect" onchange="onStudentCourseChange()"></select>
     </div>
     <div id="studentStreak"></div>
+    <div id="studentVenueCard" class="location-card">
+      <h3>📍 Attendance Location</h3>
+      <div id="studentVenueName" class="location-name">Location check not configured</div>
+      <div id="studentVenueSub" class="location-sub">The class representative has not set the school attendance location yet.</div>
+      <div id="studentVenueCoords" class="coords"></div>
+      <div id="studentLocationStatus" class="location-status"></div>
+    </div>
     <div class="attendance-box">
       <h3>Attendance</h3>
       <p id="attendanceStatus">No active attendance session.</p>
@@ -188,7 +207,7 @@ footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; f
         <div class="timer mono" id="timer">10:00</div>
         <div class="code" id="attendanceCode">------</div>
         <div id="qrBox"></div>
-        <p class="small">Code changes every 60 seconds. Students type it in or scan the QR.</p>
+        <p class="small">Code changes every 30 seconds. Students type it in or scan the QR.</p>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
         <div class="progress-label mono" id="progressLabel">0 / 0 checked in</div>
         <button class="secondary" onclick="rollCall()">Random Spot-Check (5)</button>
@@ -235,12 +254,18 @@ footer { text-align: center; padding: 24px; color: #52697F; font-size: 10.5px; f
       <button onclick="saveSessionLength()">Save</button>
       <p id="lengthSaved" class="small"></p>
 
-      <h3 class="list-title">Restrict check-in to school location</h3>
+      <h3 class="list-title">📍 School Location Check-In</h3>
+      <p class="small">Students can only mark attendance when their device location is inside this saved school zone. The saved place is also shown on every student's dashboard.</p>
+      <label class="small" style="display:block; margin-top:8px;">Location name</label>
+      <input id="venueName" type="text" placeholder="Engineering Faculty">
+      <label class="small" style="display:block; margin-top:8px;">Building / identifying description</label>
+      <input id="venueDescription" type="text" placeholder="Faculty of Engineering, ESUT">
       <div id="venueStatus" class="small"></div>
-      <button onclick="setVenue()">Set Current Location as School</button>
+      <button onclick="setVenue()">📌 Set Current Location as School</button>
       <label class="small" style="display:block; margin-top:10px;">Allowed radius (meters)</label>
-      <input id="venueRadius" type="number" min="20" max="2000" value="150">
+      <input id="venueRadius" type="number" min="20" max="2000" value="100">
       <button onclick="saveVenueRadius()">Save Radius</button>
+      <button class="secondary" onclick="refreshAdminVenueLocation()">Check My Current Location</button>
       <button class="secondary" onclick="clearVenue()">Turn Off Location Check</button>
       <p id="venueSaved" class="small"></p>
 
@@ -288,7 +313,7 @@ function initFirebase() {
 }
 
 function defaultConfig() {
-  return { roster: {}, adminPassword: '001', sessionMinutes: 10, venue: null, venueRadius: 150, threshold: 75, courses: ['General'] };
+  return { roster: {}, adminPassword: '001', sessionMinutes: 10, venue: null, venueRadius: 100, threshold: 75, courses: ['General'] };
 }
 
 let config = defaultConfig();
@@ -393,6 +418,8 @@ function showAdminTab(tab) {
   if (tab === 'history') renderHistoryAndRisk();
 }
 
+/* ---------- STUDENT LOGIN ---------- */
+
 async function studentLogin() {
   const name = document.getElementById('studentName').value.trim();
   const matric = document.getElementById('matricNumber').value.trim();
@@ -420,6 +447,7 @@ async function studentLogin() {
   populateCourseSelect(document.getElementById('studentCourseSelect'), currentCourse);
 
   showView('studentDashboard');
+  renderVenueForStudent();
   await refreshStudentView();
   await renderStudentStreak();
   clearInterval(pollInterval);
@@ -434,6 +462,8 @@ function onStudentCourseChange() {
 
 function logoutStudent() { clearInterval(pollInterval); showView('hero'); }
 
+/* ---------- ADMIN LOGIN ---------- */
+
 async function adminLogin() {
   await loadConfig();
   const password = document.getElementById('adminPassword').value;
@@ -447,10 +477,12 @@ async function adminLogin() {
   showView('adminDashboard');
   showAdminTab('session');
   document.getElementById('sessionMinutes').value = config.sessionMinutes;
-  document.getElementById('venueRadius').value = config.venueRadius || 150;
+  document.getElementById('venueRadius').value = config.venueRadius || 100;
+  document.getElementById('venueName').value = config.venue?.name || 'Engineering Faculty';
+  document.getElementById('venueDescription').value = config.venue?.description || 'Faculty of Engineering, ESUT';
   document.getElementById('thresholdInput').value = config.threshold || 75;
   document.getElementById('coursesInput').value = config.courses.join('\n');
-  document.getElementById('venueStatus').textContent = config.venue ? `Location check is ON (radius ${config.venueRadius || 150}m).` : 'Location check is OFF.';
+  updateVenueStatusText();
 
   await loadSession(adminCurrentCourse);
   await refreshAdminView();
@@ -468,6 +500,8 @@ function logoutAdmin() {
   clearInterval(pollInterval); clearInterval(timerInterval); clearInterval(codeInterval);
   showView('hero');
 }
+
+/* ---------- ROSTER ---------- */
 
 async function saveRoster() {
   const raw = document.getElementById('rosterInput').value.trim();
@@ -511,6 +545,8 @@ async function removeStudent(key) {
   updateStats();
 }
 
+/* ---------- SETTINGS ---------- */
+
 async function saveCourses() {
   const raw = document.getElementById('coursesInput').value.trim();
   const list = raw.split('\n').map(l => l.trim()).filter(Boolean);
@@ -547,29 +583,120 @@ async function saveThreshold() {
   document.getElementById('thresholdSaved').textContent = 'Saved.';
 }
 
+function renderVenueForStudent() {
+  const nameEl = document.getElementById('studentVenueName');
+  const subEl = document.getElementById('studentVenueSub');
+  const coordsEl = document.getElementById('studentVenueCoords');
+  const statusEl = document.getElementById('studentLocationStatus');
+
+  if (!config.venue) {
+    nameEl.textContent = 'Location check not configured';
+    subEl.textContent = 'Attendance location has not been set by the class representative.';
+    coordsEl.textContent = '';
+    statusEl.innerHTML = '<span class="location-warn">⚠ Location verification is not active.</span>';
+    return;
+  }
+
+  const v = config.venue;
+  nameEl.textContent = v.name || 'School Attendance Location';
+  subEl.textContent = v.description || 'Saved school attendance zone';
+  coordsEl.textContent = `Saved coordinates: ${Number(v.lat).toFixed(6)}, ${Number(v.lng).toFixed(6)} · Radius: ${config.venueRadius || 100}m`;
+  statusEl.innerHTML = '<span class="location-warn">Tap Mark Me Present to verify your live GPS location.</span>';
+}
+
+function updateVenueStatusText(prefix='Location check is ON') {
+  const el = document.getElementById('venueStatus');
+  if (!config.venue) {
+    el.textContent = 'Location check is OFF.';
+    return;
+  }
+  const v = config.venue;
+  const acc = v.accuracy ? ` · saved GPS accuracy ±${Math.round(v.accuracy)}m` : '';
+  el.innerHTML = `<span class="location-ok">✓ ${escapeHtml(prefix)}</span><br>
+    ${escapeHtml(v.name || 'School Attendance Location')} · ${escapeHtml(v.description || 'School zone')}<br>
+    <span class="coords">Coordinates: ${Number(v.lat).toFixed(6)}, ${Number(v.lng).toFixed(6)} · Radius: ${config.venueRadius || 100}m${acc}</span>`;
+}
+
 function setVenue() {
   const statusEl = document.getElementById('venueStatus');
-  if (!navigator.geolocation) { statusEl.textContent = 'Your browser does not support location.'; return; }
-  statusEl.textContent = 'Getting your location...';
+  const name = document.getElementById('venueName').value.trim() || 'Engineering Faculty';
+  const description = document.getElementById('venueDescription').value.trim() || 'Faculty of Engineering, ESUT';
+
+  if (!navigator.geolocation) {
+    statusEl.innerHTML = '<span class="location-bad">Your browser does not support location.</span>';
+    return;
+  }
+
+  statusEl.textContent = 'Getting a high-accuracy GPS fix... Keep your phone still and allow location access.';
   navigator.geolocation.getCurrentPosition(async (pos) => {
-    config.venue = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    if (pos.coords.accuracy > 100) {
+      statusEl.innerHTML = `<span class="location-warn">GPS accuracy is only ±${Math.round(pos.coords.accuracy)}m. Move to an open area and try again for a better fix.</span>`;
+      return;
+    }
+
+    config.venue = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      accuracy: pos.coords.accuracy,
+      name,
+      description,
+      setAt: Date.now()
+    };
+    config.venueRadius = parseInt(document.getElementById('venueRadius').value) || 100;
     await saveConfig();
-    statusEl.textContent = `Location set (accuracy ±${Math.round(pos.coords.accuracy)}m).`;
-  }, () => { statusEl.textContent = 'Could not get your location. Allow location access and try again.'; }, { enableHighAccuracy: true, timeout: 10000 });
+    updateVenueStatusText('School location saved');
+    document.getElementById('venueSaved').textContent = '✓ Location saved. Students will now see this exact saved place and must be inside the radius to check in.';
+    renderVenueForStudent();
+  }, (err) => {
+    const reason = err.code === 1 ? 'Location permission was denied.' :
+                   err.code === 2 ? 'Your device could not determine a location.' :
+                   'Location request timed out.';
+    statusEl.innerHTML = `<span class="location-bad">${reason} Allow precise location and try again.</span>`;
+  }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+}
+
+async function refreshAdminVenueLocation() {
+  const statusEl = document.getElementById('venueStatus');
+  if (!navigator.geolocation) {
+    statusEl.innerHTML = '<span class="location-bad">Geolocation is not supported on this device.</span>';
+    return;
+  }
+  statusEl.textContent = 'Checking your current GPS location...';
+  try {
+    const coords = await getStudentLocation();
+    if (!config.venue) {
+      statusEl.innerHTML = `<span class="location-warn">Current location: ${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)} · accuracy ±${Math.round(coords.accuracy)}m. Set this location as the school zone when ready.</span>`;
+      return;
+    }
+    const dist = distanceMeters(coords.latitude, coords.longitude, config.venue.lat, config.venue.lng);
+    statusEl.innerHTML = `<span class="${dist <= (config.venueRadius || 100) ? 'location-ok' : 'location-bad'}">
+      Current GPS: ${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)} · accuracy ±${Math.round(coords.accuracy)}m<br>
+      Distance from saved ${escapeHtml(config.venue.name || 'school location')}: about ${Math.round(dist)}m
+    </span>`;
+  } catch (e) {
+    statusEl.innerHTML = '<span class="location-bad">Could not read your current location. Make sure precise location/GPS is enabled.</span>';
+  }
 }
 
 async function saveVenueRadius() {
   const radius = parseInt(document.getElementById('venueRadius').value);
-  if (!radius || radius < 20) { document.getElementById('venueSaved').textContent = 'Enter a valid radius (20m or more).'; return; }
+  if (!radius || radius < 20 || radius > 2000) {
+    document.getElementById('venueSaved').textContent = 'Enter a radius between 20m and 2000m.';
+    return;
+  }
   config.venueRadius = radius;
   await saveConfig();
-  document.getElementById('venueSaved').textContent = 'Radius saved.';
+  document.getElementById('venueSaved').textContent = `Radius saved: ${radius}m.`;
+  updateVenueStatusText();
+  renderVenueForStudent();
 }
 
 async function clearVenue() {
   config.venue = null;
   await saveConfig();
   document.getElementById('venueStatus').textContent = 'Location check turned off.';
+  document.getElementById('venueSaved').textContent = 'Location restriction disabled.';
+  renderVenueForStudent();
 }
 
 function distanceMeters(lat1, lng1, lat2, lng2) {
@@ -586,6 +713,8 @@ function getStudentLocation() {
   });
 }
 
+/* ---------- SESSION CONTROL (admin) ---------- */
+
 async function startAttendance() {
   await loadConfig();
   const now = Date.now().toString(36);
@@ -597,7 +726,7 @@ async function startAttendance() {
 
   clearInterval(timerInterval); clearInterval(codeInterval);
   renderQr();
-  codeInterval = setInterval(rotateCode, 60000);
+  codeInterval = setInterval(rotateCode, 30000);
   timerInterval = setInterval(updateTimerDisplay, 1000);
   updateTimerDisplay();
 }
@@ -660,6 +789,8 @@ function rollCall() {
   box.innerHTML = `<div class="rollcall-box"><h4>SPOT-CHECK · CONFIRM THESE ARE IN THE ROOM</h4>${shuffled.map(r => `<div class="student-row"><span>${escapeHtml(r.name)}</span></div>`).join('')}</div>`;
 }
 
+/* ---------- STUDENT: viewing + marking ---------- */
+
 async function refreshStudentView() {
   await loadSession(currentCourse);
   const status = document.getElementById('attendanceStatus');
@@ -707,27 +838,57 @@ async function markAttendance() {
   const enteredCode = document.getElementById('codeInput').value.trim().toUpperCase();
   if (enteredCode !== session.code) { alert('That code is incorrect or has expired. Check the screen in class and try again.'); return; }
 
-  if (config.venue) {
-    status.textContent = 'Checking your location...';
-    let coords;
-    try { coords = await getStudentLocation(); }
-    catch (e) { status.textContent = 'Location access is required to check in.'; alert('This class requires location access to mark attendance. Please allow location access and try again.'); return; }
-    if (coords.accuracy > 40) {
-      status.textContent = `Your location signal is too weak (±${Math.round(coords.accuracy)}m). Move near a window or outdoors and try again.`;
-      return;
-    }
-    const dist = distanceMeters(coords.latitude, coords.longitude, config.venue.lat, config.venue.lng);
-    const effectiveDist = dist - coords.accuracy;
-    if (effectiveDist > (config.venueRadius || 150)) {
-      status.textContent = `You appear to be too far from class (about ${Math.round(dist)}m away).`;
-      return;
-    }
+  if (!config.venue) {
+    status.textContent = 'Attendance location is not configured. Ask the class representative to set the school location.';
+    alert('This attendance session requires a configured school location.');
+    return;
   }
+
+  status.textContent = '📍 Verifying your live GPS location...';
+  let coords;
+  try { coords = await getStudentLocation(); }
+  catch (e) {
+    status.textContent = 'Location access is required to check in.';
+    alert('Precise device location is required. Turn on GPS/location permission for this site and try again.');
+    return;
+  }
+
+  const radius = config.venueRadius || 100;
+  const dist = distanceMeters(coords.latitude, coords.longitude, config.venue.lat, config.venue.lng);
+  const gpsAccuracy = Number(coords.accuracy || 9999);
+
+  // If GPS is too inaccurate to make a reliable inside/outside decision, do not accept.
+  if (gpsAccuracy > Math.max(50, radius * 0.75)) {
+    status.textContent = `GPS accuracy is too low (±${Math.round(gpsAccuracy)}m). Move to an open area and try again.`;
+    document.getElementById('studentLocationStatus').innerHTML =
+      `<span class="location-warn">⚠ GPS accuracy ±${Math.round(gpsAccuracy)}m is not reliable enough for this check-in.</span>`;
+    return;
+  }
+
+  if (dist > radius) {
+    status.textContent = `❌ Outside the attendance zone. You are about ${Math.round(dist)}m from ${config.venue.name || 'the saved location'} (allowed ${radius}m).`;
+    document.getElementById('studentLocationStatus').innerHTML =
+      `<span class="location-bad">✕ Outside zone · about ${Math.round(dist)}m away · allowed ${radius}m</span>`;
+    return;
+  }
+
+  status.textContent = `✓ Location verified: about ${Math.round(dist)}m from ${config.venue.name || 'school'}.`;
+  document.getElementById('studentLocationStatus').innerHTML =
+    `<span class="location-ok">✓ Inside attendance zone · ${Math.round(dist)}m away · GPS accuracy ±${Math.round(gpsAccuracy)}m</span>`;
 
   const existing = await getAttendanceRecord(currentCourse, session.id, currentStudent.matricKey);
   if (existing) { status.textContent = '✅ Your attendance has already been recorded.'; document.getElementById('markButton').disabled = true; return; }
 
-  const record = { name: currentStudent.name, matric: currentStudent.matric, time: new Date().toLocaleTimeString(), markedAt: Date.now() };
+  const record = {
+    name: currentStudent.name,
+    matric: currentStudent.matric,
+    time: new Date().toLocaleTimeString(),
+    markedAt: Date.now(),
+    locationVerified: true,
+    distanceFromVenueMeters: Math.round(dist),
+    gpsAccuracyMeters: Math.round(gpsAccuracy),
+    venueName: config.venue.name || 'School Attendance Location'
+  };
   await setAttendanceRecord(currentCourse, session.id, currentStudent.matricKey, record);
 
   status.textContent = '✅ Attendance recorded successfully.';
@@ -754,6 +915,8 @@ async function renderStudentStreak() {
   }
   box.innerHTML = `<div class="streak-badge">🔥 <span>Current streak:</span> <strong>${streak}</strong> <span>session${streak===1?'':'s'}</span></div>`;
 }
+
+/* ---------- ADMIN: live dashboard ---------- */
 
 async function refreshAdminView() {
   await loadConfig();
@@ -796,9 +959,18 @@ async function refreshLiveList() {
   const list = document.getElementById('attendanceList');
   if (records.length === 0) { list.innerHTML = 'No students have marked attendance yet.'; return; }
   list.innerHTML = records.map(r => `
-    <div class="student-row"><div><strong>${escapeHtml(r.name)}</strong><br><small style="color:var(--ink-soft);" class="mono">${escapeHtml(r.matric)}</small></div><span class="present">✔ ${escapeHtml(r.time || '')}</span></div>
+    <div class="student-row">
+      <div>
+        <strong>${escapeHtml(r.name)}</strong><br>
+        <small style="color:var(--ink-soft);" class="mono">${escapeHtml(r.matric)}</small><br>
+        <small style="color:var(--ink-soft);">📍 ${r.locationVerified ? `${escapeHtml(String(r.distanceFromVenueMeters))}m from saved location` : 'Location not recorded'}</small>
+      </div>
+      <span class="present">✔ ${escapeHtml(r.time || '')}</span>
+    </div>
   `).join('');
 }
+
+/* ---------- HISTORY + AT-RISK ---------- */
 
 async function renderHistoryAndRisk() {
   const idx = (await loadSessionsIndex(adminCurrentCourse)).sort((a,b) => b.startedAt - a.startedAt);
@@ -849,8 +1021,13 @@ function downloadCsv(filename, rows) {
 
 async function exportSessionCsv(sessionId, dateLabel) {
   const records = await fetchSessionRecords(adminCurrentCourse, sessionId);
-  const rows = [['Name','Matric Number','Time Marked']];
-  records.forEach(r => rows.push([r.name, r.matric, r.time || '']));
+  const rows = [['Name','Matric Number','Time Marked','Location Verified','Distance From Saved Location (m)','GPS Accuracy (m)']];
+  records.forEach(r => rows.push([
+    r.name, r.matric, r.time || '',
+    r.locationVerified ? 'YES' : 'NO',
+    r.distanceFromVenueMeters ?? '',
+    r.gpsAccuracyMeters ?? ''
+  ]));
   const safeName = dateLabel.replace(/[\s:·]+/g,'_');
   downloadCsv(`${adminCurrentCourse}-${safeName}.csv`, rows);
 }
@@ -871,6 +1048,8 @@ async function exportSummaryCsv() {
   });
   downloadCsv(`${adminCurrentCourse}-attendance-summary.csv`, rows);
 }
+
+/* ---------- INIT ---------- */
 
 async function init() {
   const ok = initFirebase();
